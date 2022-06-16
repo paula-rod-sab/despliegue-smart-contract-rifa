@@ -256,8 +256,9 @@ contract rifa is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return rondaId;
     }
 
-    function getHistorialGanadores(uint256 numRonda) public view returns (address) {
-        return historialGanadores[numRonda];
+    function getUltimoGanador() public view returns (address) {
+        uint256 rondaAnterior = getRondaId() - 1;
+        return historialGanadores[rondaAnterior];
     }
 
     function getDir_owner_rifa() public view returns (address) {
