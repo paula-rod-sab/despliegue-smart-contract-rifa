@@ -77,10 +77,10 @@ contract rifa is VRFConsumerBaseV2, KeeperCompatibleInterface {
         uint64 _subId,
         uint32 _callbackGasLimit
         ) VRFConsumerBaseV2(_vrfCoordinador){
-        precioPorBoletoEnEur = _precioPorBoletoEnEur; // euros por boleto 
+        precioPorBoletoEnEur = _precioPorBoletoEnEur;  
         rondaId = 1;
-        tiempo = _intervaloTiempo; // segundos para que se reinicie
-        lastTimeStamp = block.timestamp; // momento en el que se ha minado el bloque
+        tiempo = _intervaloTiempo; 
+        lastTimeStamp = block.timestamp; 
         estadoRifa = true;
         dir_owner_rifa = msg.sender;
         dir_contrato = address(this);
@@ -106,15 +106,14 @@ contract rifa is VRFConsumerBaseV2, KeeperCompatibleInterface {
         }
         if(msg.value > costeBoletos) {
             uint devuelve = msg.value - costeBoletos;
-            (bool successDevolucion, ) = payable(msg.sender).call{value: devuelve}(""); // payable(msg.sender).transfer(devuelve); // @dev Envia la diferencia de Ethers que no necesita para comprar los boletos requeridos.
+            // @dev Envia la diferencia de Ethers que no necesita para comprar los boletos requeridos.
+            (bool successDevolucion, ) = payable(msg.sender).call{value: devuelve}(""); 
             if (!successDevolucion) {
                 revert Rifa__ErrorTransferDevolucion();
             }
         }        
         emit ComprandoBoletos(_numBoletos, msg.sender);
-        /**
-        * @dev Asignacion de boletos.
-        */
+        // @dev Asignacion de boletos.
         boletosPorPersona[rondaId][msg.sender] += _numBoletos;
         for(uint i = 0; i < _numBoletos; i++) {
             participantes.push(msg.sender);           
@@ -130,7 +129,7 @@ contract rifa is VRFConsumerBaseV2, KeeperCompatibleInterface {
         address personaGanadora = participantes[posArray];
         historialGanadores[rondaId] = personaGanadora;
         emit PersonaGanadora(personaGanadora);
-        // Divide el bote entre el ganador y la asociacion. Un cuarto para el ganador y 3/4 para la asociacion
+        // Divide el bote entre el ganador y la asociacion. 1/4 para el ganador y 3/4 para la asociacion
         uint ethers_premio = dir_contrato.balance / 4;
         uint ethers_asociacion = dir_contrato.balance - ethers_premio;
         // Se transfiere el dinero al ganador y a la asociación
@@ -146,8 +145,8 @@ contract rifa is VRFConsumerBaseV2, KeeperCompatibleInterface {
         emit transferido_asociacion(ethers_asociacion);
         // Reseteo de la ronda.
         rondaId++;
-        estadoRifa = true; // Vuelve a abrirse el sorteo
-        lastTimeStamp = block.timestamp; // Se reinicia el valor al bloque actual
+        estadoRifa = true;                  
+        lastTimeStamp = block.timestamp;   
         participantes = new address [](0);
         emit Comienzo_ronda(rondaId);
     } 
@@ -155,7 +154,7 @@ contract rifa is VRFConsumerBaseV2, KeeperCompatibleInterface {
     // ---------------------- FUNCIONES PRICE FEEDS -----------------------
 
     /**
-     * Devuelve el valor del eth en dolars y el valor del eur en dolars, multiplicado por 10**8.
+     * @dev Devuelve el valor del eth en dolars y el valor del eur en dolars, multiplicado por 10**8.
      */
     function getLatestPrice() public view returns (uint256, uint256) {
         (,int priceETHUSDInt,,,) = priceFeedETHUSD.latestRoundData();
@@ -166,7 +165,7 @@ contract rifa is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     /**
-     * Devuelve el precio de la entrada en Wei.
+     * @dev Devuelve el precio de la entrada en Wei.
      */
     function getPrecioBoletoEth() public view returns (uint256) {
         (uint256 eth_Usd,uint256 eur_Usd) = getLatestPrice();
@@ -202,6 +201,9 @@ contract rifa is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     // ---------------------- FUNCIONES VRF -----------------------
 
+    /**
+     * @dev Se llama a la función obtener ganador pasando por parámetro el número aleatorio.
+     */
     function fulfillRandomWords(uint256 /**/, uint256[] memory randomWords) internal override {
         obtenerGanador(randomWords[0]);
     }
