@@ -12,7 +12,7 @@ def deploy_rifa():
         config["networks"][network.show_active()]["keyHash"],
         config["networks"][network.show_active()]["subId"],
         config["networks"][network.show_active()]["callbackGas"],
-        {"from":account})
+        {"from":account, "priority_fee": 35000000000})
     print(f"Contrato desplegado")
 def main():
     deploy_rifa()
